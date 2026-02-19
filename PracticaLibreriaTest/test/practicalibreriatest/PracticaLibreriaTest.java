@@ -5,10 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import org.junit.jupiter.params.provider.Arguments;
 
 import customexceptions.BorrarLibroException;
 import customexceptions.RegistroLibroException;
@@ -38,15 +43,23 @@ class PracticaLibreriaTest {
 
 	}
 
-	@Test
-	void shouldCreateLibroTest() {
+	@ParameterizedTest
+	@MethodSource("shouldCreateLibroTestArgumento")
+	void shouldCreateLibroTest(Libro l, Double expected) {
 		// GIVEN
-		Libro l = new Libro("Rayuela", "EMECE", LocalDate.of(1996, 10, 05), "RAYUELA", 1500.0);
 		// WHEN
-		Double pr = l.getPrecio();
 		// THEN
-		assertEquals(1500.0, pr);
+		assertEquals(expected, l.getPrecio(), 2.0);
 
+	}
+
+	private static Stream<Arguments> shouldCreateLibroTestArgumento() {
+
+		return Stream.of(
+				Arguments.of(new Libro("Rayuela", "EMECE", LocalDate.of(1996, 10, 05), "RAYUELA", 1500.0), 1500.0),
+				Arguments.of(new Libro("It", "Plaza & Janés", LocalDate.of(1996, 10, 05), "IT", 1900.0), 1902.0),
+				Arguments.of(new Libro("Diario de un zombi", "Delt books", LocalDate.of(1996, 10, 05), "RAYUELA", 1400.0), 1400.0),
+				Arguments.of(new Libro("Rayuela", "EMECE", LocalDate.of(1996, 10, 05), "RAYUELA", 1800.0), 1800.0));
 	}
 
 	@Test

@@ -1,12 +1,15 @@
 package practicalibreriatest;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
 import customexceptions.BorrarLibroException;
+import customexceptions.LibroNuevoException;
 import customexceptions.RegistroLibroException;
-import data.Autor;
 import data.Libro;
 import data.Persona;
 
@@ -15,10 +18,12 @@ public class Biblioteca {
 	private String nombre;
 	private Map<Libro, Persona> catalogo;
 	private Integer cantLibros = 0;
+	private final Clock clock;
 
-	public Biblioteca(String nombre) {
+	public Biblioteca(String nombre, Clock clock) {
 		this.nombre = nombre;
 		this.catalogo = new TreeMap<Libro, Persona>();
+		this.clock = clock;
 	}
 
 	public String getNombre() {
@@ -41,7 +46,10 @@ public class Biblioteca {
 		return cantLibros;
 	}
 
-	public void registrarLibro(Libro l, Persona a) throws RegistroLibroException {
+	public void registrarLibro(Libro l, Persona a) throws RegistroLibroException, LibroNuevoException {
+
+		validarFdp(l);
+
 
 		if (catalogo.containsKey(l)) {
 
@@ -50,6 +58,19 @@ public class Biblioteca {
 			catalogo.put(l, a);
 			this.cantLibros++;
 		}
+	}
+
+	private void validarFdp(Libro l) throws LibroNuevoException {
+
+		LocalDate fixedClock = LocalDate.now(this.clock);
+		LocalDate bookFdp = l.getFdp();
+
+		if (Period.between(bookFdp, fixedClock).getYears() < 10) {
+
+			throw new LibroNuevoException("Libro con menos de 10 anios");
+
+		}
+
 	}
 
 	public ArrayList<Map.Entry<Libro, Persona>> getCatalogList() {
